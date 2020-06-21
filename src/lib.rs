@@ -1,7 +1,6 @@
-fn hello_world() -> bool {
-    1 == 1
+pub fn hello_world() -> bool {
+    true
 }
-
 
 #[cfg(test)]
 mod tests {

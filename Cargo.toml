@@ -1,5 +1,5 @@
 [package]
-name = "Proxy"
+name = "proxy"
 version = "0.1.0"
 authors = ["7hoenix <jpholzmann@gmail.com>"]
 edition = "2018"
