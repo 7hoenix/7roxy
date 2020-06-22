@@ -7,3 +7,4 @@ Then you may just
 ```bash
 cargo add <dependency>
 ```
+cargo doc --all --open
