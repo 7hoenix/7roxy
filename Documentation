@@ -98,3 +98,30 @@ Metrics / Improvment measured by:
 
 - This needs to be addressed.
 
+--
+
+## Types
+
+
+```haskell
+type Neuron = Neuron
+                { inputs :: [Connection]  // myelin wrapped inputs
+                , outputs :: [Connection]
+                }
+
+type Connection
+    = Connection Neuron Properties
+
+type Properties
+    = Triggered Effect Weight
+    | ExpectantTrigger Effect Threshold
+
+type Effect
+    = Activate
+    | Inhibit
+
+process :: Neuron -> State Context [Neuron]
+
+think :: Mind -> State Context Mind
+think = concatMap process // Get to think through how to resolve a meta network like this. . .
+```
