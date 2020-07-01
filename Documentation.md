@@ -44,6 +44,14 @@ These preferences are taken into consideration based on this precendence order:
 
 Preferences help drive Policies as customization points.
 
+### Directives
+
+Users issue directives to their 7roxy.
+
+### Requests
+
+7roxy instances issue requests to other agents to fullfill directives.
+
 ### Negotiation between agents
 
 Trusted Negotion Policy
@@ -136,9 +144,21 @@ Metrics / Improvment measured by:
   - Anything that needs human intervention <- Can't get something scheduled
 - Aggregate metrics
 
+### Outstanding requests that it attempts to complete periodically
+
+If AgentZ makes request but AgentJ is down. . . what happens?
+  - Store requests in a per-agent queue and keep trying periodically
+      - As part of persistant peer to peer connection protocol
+
+AgentZ as part of fulfilling requests to pair, first needs to connect to AgentJ.
+This happens with an exponential backoff per-agent. Any further requests for AgentJ
+are queued until a connection to AgentJ is established. No connection is needed for
+other agents UNLESS there are requests to be fulfilled by that agent. i.e. the first
+request to AgentJ intiatates AgentZ to try and connect to AgentJ over a TCP socket.
+
 --
 
-## Persistent Peer to Peer Communication Protocol
+## Persistent Peer to Peer Address Book Protocol
 
 - Agents ping each other regularly to verify connection (once per hour - once per day).
   - Agents are run as daemons that reset on restart.
