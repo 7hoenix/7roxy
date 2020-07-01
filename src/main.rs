@@ -1,19 +1,27 @@
 use std::{error::Error, net::SocketAddrV4};
-use tokio::net::{UdpSocket};
-use tokio_openssl::{connect};
-use openssl::ssl::{SslMethod, SslConnector};
+use tokio::net::UdpSocket;
+use structopt::StructOpt;
+
+#[derive(StructOpt)]
+#[structopt(name = "7roxy", about = "A personal AI proxy agent.")]
+struct Opt {
+    #[structopt(short, long)]
+    local_address: SocketAddrV4,
+
+    #[structopt(short, long)]
+    remote_address: SocketAddrV4,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let addr: SocketAddrV4 = "127.0.0.1:19324".parse()?;
+    let Opt {
+        local_address,
+        remote_address,
+    } = Opt::from_args();
 
-    let socket = UdpSocket::bind(addr).await?;
+    let socket = UdpSocket::bind(local_address).await?;
 
-    let ssl_connector = SslConnector::builder(SslMethod::dtls())?.build();
-
-    let configuration = ssl_connector.configure()?;
-
-    connect(configuration, "", socket).await?;
+    socket.connect(remote_address).await?;
 
     Ok(())
 }
