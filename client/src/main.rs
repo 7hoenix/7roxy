@@ -1,6 +1,6 @@
 use std::{error::Error, net::SocketAddrV4};
-use tokio::net::UdpSocket;
 use structopt::StructOpt;
+use tokio::net::UdpSocket;
 
 #[derive(StructOpt)]
 #[structopt(name = "7roxy", about = "A personal AI proxy agent.")]

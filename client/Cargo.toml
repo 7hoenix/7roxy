@@ -1,0 +1,11 @@
+[package]
+authors = ["7hoenix <jpholzmann@gmail.com>"]
+edition = "2018"
+name = "proxy"
+version = "0.1.0"
+
+[dependencies]
+tokio = { version = "0.2", features = ["full"] }
+openssl = "0.10.29"
+tokio-openssl = "0.4.0"
+structopt = "0.3.15"
