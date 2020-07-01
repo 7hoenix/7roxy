@@ -3,7 +3,7 @@ use structopt::StructOpt;
 use tokio::net::UdpSocket;
 
 #[derive(StructOpt)]
-#[structopt(name = "7roxy", about = "A personal AI proxy agent.")]
+#[structopt(name = "7roxy Client", about = "A personal AI proxy agent client.")]
 struct Opt {
     #[structopt(short = "i", long)]
     should_initiate: bool,
