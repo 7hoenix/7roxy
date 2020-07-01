@@ -5,5 +5,4 @@ name = "client"
 version = "0.1.0"
 
 [dependencies]
-tokio = { version = "0.2", features = ["full"] }
 structopt = "0.3.15"
