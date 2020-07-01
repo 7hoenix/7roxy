@@ -2,7 +2,7 @@ use std::{error::Error, net::SocketAddrV4};
 use tokio::net::TcpStream;
 use tokio::net::UdpSocket;
 
-pub async fn process(socket: TcpStream) {}
+pub async fn process(_socket: TcpStream) {}
 
 pub async fn ping(
     local_address: &SocketAddrV4,

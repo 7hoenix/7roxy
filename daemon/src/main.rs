@@ -21,6 +21,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("Connection accepted {:?}", socket);
         tokio::spawn(process(socket));
     }
-
-    Ok(())
 }
