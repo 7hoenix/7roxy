@@ -33,7 +33,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let number_of_bytes_sent = socket.send(message).await?;
         println!("Number of bytes sent {}", number_of_bytes_sent);
     } else {
-        let mut buffer = [0; 9];
+        let mut buffer = [0; 512];
         let number_of_bytes_received = socket.recv(&mut buffer).await?;
         println!("Number of bytes received {}", number_of_bytes_received);
         println!("Message {}", String::from_utf8(buffer.to_vec())?);
