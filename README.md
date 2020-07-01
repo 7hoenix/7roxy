@@ -14,6 +14,12 @@ cargo doc --all --open
 
 ## Client Usage
 
+To listen:
 ```bash
-cargo run -- --local_address "127.0.0.1:19324" --remote_address "127.0.0.1:19325"
+cargo run -- --local-address "127.0.0.1:19324" --remote-address "127.0.0.1:19325"
+```
+
+To send:
+```bash
+cargo run -- -i --local-address "127.0.0.1:19325" --remote-address "127.0.0.1:19324"
 ```
