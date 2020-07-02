@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 tokio = { version = "0.2.21", features = ["macros"] }
 hyper = "0.13.6"
+hyper-tls = "0.4.1"
