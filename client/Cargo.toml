@@ -1,0 +1,8 @@
+[package]
+authors = ["7hoenix <jpholzmann@gmail.com>"]
+edition = "2018"
+name = "client"
+version = "0.1.0"
+
+[dependencies]
+structopt = "0.3.15"

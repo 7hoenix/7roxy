@@ -1,0 +1,9 @@
+[package]
+name = "daemon"
+version = "0.1.0"
+authors = ["7hoenix <jpholzmann@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+tokio = { version = "0.2", features = ["full"] }
+structopt = "0.3.15"
