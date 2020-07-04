@@ -70,7 +70,7 @@ Timeslots returned:
 Z: 10 3 5
 J: 11 5 7 10
 
-Negotion rounds:
+Negotiation rounds:
 
 First round:
 Z: [10]
