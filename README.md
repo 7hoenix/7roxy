@@ -24,4 +24,5 @@ cargo run --bin daemon -- --local-address "127.0.0.1:19324"
 To send:
 ```bash
 cargo run --bin client -- --daemon-address "127.0.0.1:19324"
+--set-directive "some directive"
 ```
