@@ -12,8 +12,13 @@ pub async fn process(socket: TcpStream) {
         .expect("failed to read from stream")
         .expect("invalid format from client");
     let message: Message = serde_json::from_reader(bytes.as_ref()).expect("failed to read");
-    assert_eq!(message, Message::Dummy);
-    println!("Got a message from the client!");
+    match message {
+        Message::Dummy => println!("Got a Dummy message!"),
+        Message::SchedulePairing(pairing_partner) => println!(
+            "Got a directive to schedule a pairing session with {}",
+            pairing_partner
+        ),
+    }
 }
 
 pub async fn ping(

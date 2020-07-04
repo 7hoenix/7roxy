@@ -18,7 +18,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let stream = TcpStream::connect(daemon_address)?;
     println!("Got a connection {:#?}", stream);
-    serde_json::to_writer(stream, &Message::Dummy).expect("Failed to write");
+    serde_json::to_writer(stream, &Message::SchedulePairing(String::from("zephyr")))
+        .expect("Failed to write");
 
     Ok(())
 }
