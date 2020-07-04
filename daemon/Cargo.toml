@@ -5,6 +5,9 @@ authors = ["7hoenix <jpholzmann@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-tokio = { version = "0.2", features = ["full"] }
-structopt = "0.3"
+common = { path = "../common" }
 serde = "1.0"
+serde_json = "1.0.56"
+structopt = "0.3"
+tokio = { version = "0.2", features = ["full"] }
+tokio-util = { version = "0.3.1", features = ["codec"] }

@@ -1,3 +1,4 @@
+use common::Message;
 use std::error::Error;
 use std::net::{SocketAddrV4, TcpStream};
 use structopt::StructOpt;
@@ -17,5 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let stream = TcpStream::connect(daemon_address)?;
     println!("Got a connection {:#?}", stream);
+    serde_json::to_writer(stream, &Message::Dummy).expect("Failed to write");
+
     Ok(())
 }
