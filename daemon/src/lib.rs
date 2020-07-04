@@ -1,8 +1,25 @@
+use common::Message;
 use std::{error::Error, net::SocketAddrV4};
 use tokio::net::TcpStream;
-use tokio::net::UdpSocket;
+use tokio::{net::UdpSocket, stream::StreamExt};
+use tokio_util::codec::{BytesCodec, FramedRead};
 
-pub async fn process(_socket: TcpStream) {}
+pub async fn process(socket: TcpStream) {
+    let mut framed = FramedRead::new(socket, BytesCodec::new());
+    let bytes = framed
+        .next()
+        .await
+        .expect("failed to read from stream")
+        .expect("invalid format from client");
+    let message: Message = serde_json::from_reader(bytes.as_ref()).expect("failed to read");
+    match message {
+        Message::Dummy => println!("Got a Dummy message!"),
+        Message::SchedulePairing(pairing_partner) => println!(
+            "Got a directive to schedule a pairing session with {}",
+            pairing_partner
+        ),
+    }
+}
 
 pub async fn ping(
     local_address: &SocketAddrV4,

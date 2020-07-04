@@ -12,14 +12,16 @@ cargo add <dependency>
 ```
 cargo doc --all --open
 
-## Client Usage
+## Daemon Usage
 
 To listen:
 ```bash
-cargo run -- --local-address "127.0.0.1:19324" --remote-address "127.0.0.1:19325"
+cargo run --bin daemon -- --local-address "127.0.0.1:19324"
 ```
+
+## Client Usage
 
 To send:
 ```bash
-cargo run -- -i --local-address "127.0.0.1:19325" --remote-address "127.0.0.1:19324"
+cargo run --bin client -- --daemon-address "127.0.0.1:19324"
 ```
