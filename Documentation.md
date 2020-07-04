@@ -156,6 +156,23 @@ are queued until a connection to AgentJ is established. No connection is needed 
 other agents UNLESS there are requests to be fulfilled by that agent. i.e. the first
 request to AgentJ intiatates AgentZ to try and connect to AgentJ over a TCP socket.
 
+### Cross reference StackOverflow and Github for tasks
+
+- User inputs phrase to search for.
+- 7roxy searches StackOverflow.
+  - Sort by most recent & highest rated.
+  - Examine questions & answers for common terminology that is not in
+    query.
+    - ? 7roxy expands searches to find variants.
+  - 7roxy checks back in with User.
+  - User selects candidate(s) for 7roxy to pursue.
+  - 7roxy takes code snippets from candidate(s) and searches github
+    api.
+  - 7roxy reports results (with links).
+  - Perform semantic anlysis on code to remove details specific to
+    that example.
+    - What if 7roxy just had a grammar that it understood? Like Bash.
+
 --
 
 ## Persistent Peer to Peer Address Book Protocol
