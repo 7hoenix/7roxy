@@ -5,6 +5,26 @@ pub mod http {
         pub enum Site {
             StackOverflow,
         }
+
+        //
+        // NOTE:
+        // These fields are from [here](https://api.stackexchange.com/docs/wrapper)
+        //
+
+        pub struct Response<I> {
+            backoff: Option<u64>,
+            error_id: Option<u64>,
+            error_message: Option<String>,
+            error_name: Option<String>,
+            has_more: bool,
+            items: Vec<I>,
+            page: u64,
+            page_size: u64,
+            quota_max: u64,
+            quota_remaining: u64,
+            total: u64,
+            r#type: String,
+        }
     }
 
     pub enum Target {
