@@ -1,6 +1,6 @@
 mod capability;
 
-pub use crate::capability::http::{make_request, Site, Target};
+pub use crate::capability::http::{make_request, stack_exchange, Target};
 use common::Message;
 use std::{error::Error, net::SocketAddrV4};
 use tokio::net::TcpStream;
@@ -20,7 +20,7 @@ pub async fn process(socket: TcpStream) {
             println!("Got a directive to find information on \"{}\"", search);
             let res = make_request(
                 search,
-                Target::StackExchange(Site::Site(String::from("stackoverflow"))),
+                Target::StackExchange(stack_exchange::Site::StackOverflow),
             )
             .await;
             match res {

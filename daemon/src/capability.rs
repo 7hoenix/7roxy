@@ -1,24 +1,25 @@
 pub mod http {
     use std::error::Error;
 
-    pub enum Site {
-        Site(String),
+    pub mod stack_exchange {
+        pub enum Site {
+            StackOverflow,
+        }
     }
 
     pub enum Target {
-        StackExchange(Site),
+        StackExchange(stack_exchange::Site),
     }
 
     pub async fn make_request(search: String, target: Target) -> Result<(), Box<dyn Error>> {
         match target {
-            Target::StackExchange(Site::Site(raw_site)) => {
-                println!("parsing?, {}", raw_site);
+            Target::StackExchange(stack_exchange::Site::StackOverflow) => {
                 let client = reqwest::Client::new();
                 let params = [
                     ("order", "desc"),
                     ("sort", "activity"),
                     ("q", &search),
-                    ("site", &raw_site),
+                    ("site", "stackoverflow"),
                 ];
                 let request = client
                     .get("https://api.stackexchange.com/2.2/search/advanced")
