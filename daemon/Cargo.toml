@@ -11,5 +11,5 @@ serde_json = "1.0.56"
 structopt = "0.3"
 tokio = { version = "0.2", features = ["full"] }
 tokio-util = { version = "0.3.1", features = ["codec"] }
-reqwest = { version = "0.10.6", features = ["json"] }
+reqwest = { version = "0.10.6", features = ["json", "gzip"] }
 openssl = { version = "0.10", features = ["vendored"] }
