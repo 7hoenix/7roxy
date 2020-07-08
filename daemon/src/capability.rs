@@ -2,6 +2,7 @@ pub mod http {
     use std::io;
     use std::io::Write;
     use std::error::Error;
+    use std::process::Command;
     use libxml::parser::Parser;
     use libxml::xpath;
 
@@ -75,16 +76,22 @@ pub mod http {
                     let mut context = xpath::Context::new(&document).expect("HTML document context");
 
                     for snippet in context.findnodes("//pre/code", None).expect("XPath selector") {
+                        let content = snippet.get_content();
                         println!("Found some code!");
-                        for (index, line) in snippet.get_content().lines().enumerate() {
+                        for (index, line) in content.lines().enumerate() {
                             println!("{: >3}: {}", index /* padded with spaces */, line);
                         }
                         print!("\n\nSearch GitHub for a line? Empty for 'no': ");
                         io::stdout().flush().unwrap();
                         let input = &mut String::new();
                         stdin.read_line(input)?;
-                        if input.trim().is_empty() {
-                            return Ok(())
+                        match input.trim().parse::<usize>() {
+                            Err(_) => {},
+                            Ok(i) => {
+                                let line = content.lines().nth(i).expect("Line of code");
+                                let url = format!("https://github.com/search?q={}&type=Code", line);
+                                Command::new("open").args(&[url]).output()?;
+                            },
                         }
                     }
                 };
