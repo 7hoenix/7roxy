@@ -1,4 +1,6 @@
 pub mod http {
+    use std::io;
+    use std::io::Write;
     use std::error::Error;
     use libxml::parser::Parser;
     use libxml::xpath;
@@ -40,6 +42,7 @@ pub mod http {
     pub async fn make_request(search: String, target: Target) -> Result<(), Box<dyn Error>> {
         match target {
             Target::StackExchange(stack_exchange::Site::StackOverflow) => {
+                let stdin = io::stdin();
                 let client = reqwest::Client::new();
                 let params = [
                     ("order", "desc"),
@@ -63,7 +66,6 @@ pub mod http {
                     ("site", "stackoverflow"),
                 ];
 
-
                 let request = client.get(&url).query(&params);
                 let response = request.send().await?;
                 let answers: stack_exchange::Response<stack_exchange::Answer> = response.json().await?;
@@ -71,10 +73,20 @@ pub mod http {
                     let parser = Parser::default_html();
                     let document = parser.parse_string(answer.body.as_bytes()).expect("HTML document");
                     let mut context = xpath::Context::new(&document).expect("HTML document context");
-                    let snippets = context.findnodes("//pre/code", None).expect("XPath selector");
-                    let code_blocks: Vec<String> = snippets.iter().map(|s| s.get_content()).collect();
-                    println!("{}", code_blocks.join("\n"));
-                    println!("--->");
+
+                    for snippet in context.findnodes("//pre/code", None).expect("XPath selector") {
+                        println!("Found some code!");
+                        for (index, line) in snippet.get_content().lines().enumerate() {
+                            println!("{: >3}: {}", index /* padded with spaces */, line);
+                        }
+                        print!("\n\nSearch GitHub for a line? Empty for 'no': ");
+                        io::stdout().flush().unwrap();
+                        let input = &mut String::new();
+                        stdin.read_line(input)?;
+                        if input.trim().is_empty() {
+                            return Ok(())
+                        }
+                    }
                 };
 
                 Ok(())
