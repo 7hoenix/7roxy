@@ -1,11 +1,10 @@
 pub mod http {
-    use reqwest::header;
-    use serde::Deserialize;
     use std::error::Error;
+    use libxml::parser::Parser;
+    use libxml::xpath;
 
     pub mod stack_exchange {
         use serde::Deserialize;
-        use serde_json::Value;
 
         pub enum Site {
             StackOverflow,
@@ -17,37 +16,13 @@ pub mod http {
         //
 
         #[derive(Deserialize, Debug)]
-        pub struct Response<i> {
-            // backoff: Option<u64>,
-            // error_id: Option<u64>,
-            // error_message: Option<String>,
-            // error_name: Option<String>,
-            // has_more: bool,
-            pub items: Vec<i>,
-            // page: u64,
-            // page_size: u64,
-            // quota_max: u64,
-            // quota_remaining: u64,
-            // total: u64,
-            // r#type: String,
+        pub struct Response<I> {
+            pub items: Vec<I>,
         }
 
         #[derive(Deserialize, Debug)]
-        pub struct Item {
-            // tags: Vec<String>,
-            // owner: Value,
-            // title: String,
-            // is_answered: bool,
-            // view_count: u64,
-            // closed_date: Value,
-            // answer_count: u64,
-            // score: u64,
-            // last_activity_date: Value,
-            // creation_date: Value,
+        pub struct Question {
             pub question_id: u64,
-            // link: String,
-            // closed_reason: String,
-            // title: String,
         }
 
         #[derive(Deserialize, Debug)]
@@ -55,6 +30,7 @@ pub mod http {
             pub answer_id: u64,
             pub body: String,
         }
+
     }
 
     pub enum Target {
@@ -70,34 +46,36 @@ pub mod http {
                     ("sort", "activity"),
                     ("q", &search),
                     ("site", "stackoverflow"),
+                    ("accepted", "true"),
+                    ("closed", "false"),
                 ];
                 let request = client
                     .get("https://api.stackexchange.com/2.2/search/advanced")
                     .query(&params);
-
                 let response = request.send().await?;
+                let payload: stack_exchange::Response<stack_exchange::Question> =
+                  response.json().await.expect("StackOverflow questions HTTP response");
+                let question_ids: Vec<String> = payload.items.iter().map(|q| q.question_id.to_string()).collect();
+                let ids = question_ids.join(";");
+                let url: String = format!("https://api.stackexchange.com/2.2/questions/{}/answers", ids);
+                let params = [
+                    ("filter", "withbody"),
+                    ("site", "stackoverflow"),
+                ];
 
-                let payload: Result<stack_exchange::Response<stack_exchange::Item>, reqwest::Error> =
-                  response.json().await;
 
-                match payload {
-                    Ok(r) => {
-                        let question_ids: Vec<String> = r.items.iter().map(|q| q.question_id.to_string()).collect();
-                        let ids = question_ids.join(";");
-                        let url: String = format!("https://api.stackexchange.com/2.2/questions/{}/answers", ids);
-                        let params = [
-                            ("filter", "withbody"),
-                            ("site", "stackoverflow"),
-                        ];
-                        let request = client
-                            .get(&url)
-                            .query(&params);
-                        let response = request.send().await?;
-                        let payload: Result<stack_exchange::Response<stack_exchange::Answer>, reqwest::Error> = response.json().await;
-                        println!("got payload, {:#?}", payload);
-                    }
-                    Err(e) => println!("parsing err, {}", e),
-                }
+                let request = client.get(&url).query(&params);
+                let response = request.send().await?;
+                let answers: stack_exchange::Response<stack_exchange::Answer> = response.json().await?;
+                for answer in answers.items {
+                    let parser = Parser::default_html();
+                    let document = parser.parse_string(answer.body.as_bytes()).expect("HTML document");
+                    let mut context = xpath::Context::new(&document).expect("HTML document context");
+                    let snippets = context.findnodes("//pre/code", None).expect("XPath selector");
+                    let code_blocks: Vec<String> = snippets.iter().map(|s| s.get_content()).collect();
+                    println!("{}", code_blocks.join("\n"));
+                    println!("--->");
+                };
 
                 Ok(())
             }
