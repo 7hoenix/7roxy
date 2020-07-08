@@ -15,7 +15,7 @@ pub mod http {
 
         //
         // NOTE:
-        // These fields are from [here](https://api.stackexchange.com/docs/wrapper)
+        // These types are from [here](https://api.stackexchange.com/docs/wrapper)
         //
 
         #[derive(Deserialize, Debug)]
@@ -40,10 +40,45 @@ pub mod http {
         StackExchange(stack_exchange::Site),
     }
 
+    fn process_answers(answers: stack_exchange::Response<stack_exchange::Answer>) -> Result<Vec<String>, Box<dyn Error>> {
+        let stdin = io::stdin();
+        let mut results: Vec<String> = Vec::new();
+        for answer in answers.items {
+            let parser = Parser::default_html();
+            let document = parser.parse_string(answer.body.as_bytes()).expect("HTML document");
+            let mut context = xpath::Context::new(&document).expect("HTML document context");
+
+            for snippet in context.findnodes("//pre/code", None).expect("XPath selector") {
+                let content = snippet.get_content();
+                println!("Found some code!");
+                for (index, line) in content.lines().enumerate() {
+                    println!("{: >3}: {}", index /* padded with spaces */, line);
+                }
+                print!("\n\nSearch GitHub for a line? Legend: s for next answer. Enter to skip snippet. ctrl-d to finish: ");
+                io::stdout().flush().unwrap();
+                let input = &mut String::new();
+                stdin.read_line(input)?;
+                if input.is_empty() {
+                    return Ok(results); // Ctrl-D
+                } else if input == "s\n" {
+                    break;
+                }
+                match input.trim().parse::<usize>() {
+                    Err(_) => {}, // Just continue processing more answers!
+                    Ok(i) => {    // Queue to be looked up
+                        let line = content.lines().nth(i).expect("Line of code");
+                        let url = format!("https://github.com/search?q={}&type=Code", line);
+                        results.push(url);
+                    },
+                }
+            }
+        }
+        Ok(results)
+    }
+
     pub async fn make_request(search: String, target: Target) -> Result<(), Box<dyn Error>> {
         match target {
             Target::StackExchange(stack_exchange::Site::StackOverflow) => {
-                let stdin = io::stdin();
                 let client = reqwest::Client::new();
                 let params = [
                     ("order", "desc"),
@@ -70,31 +105,13 @@ pub mod http {
                 let request = client.get(&url).query(&params);
                 let response = request.send().await?;
                 let answers: stack_exchange::Response<stack_exchange::Answer> = response.json().await?;
-                for answer in answers.items {
-                    let parser = Parser::default_html();
-                    let document = parser.parse_string(answer.body.as_bytes()).expect("HTML document");
-                    let mut context = xpath::Context::new(&document).expect("HTML document context");
+                let results = process_answers(answers)?;
 
-                    for snippet in context.findnodes("//pre/code", None).expect("XPath selector") {
-                        let content = snippet.get_content();
-                        println!("Found some code!");
-                        for (index, line) in content.lines().enumerate() {
-                            println!("{: >3}: {}", index /* padded with spaces */, line);
-                        }
-                        print!("\n\nSearch GitHub for a line? Empty for 'no': ");
-                        io::stdout().flush().unwrap();
-                        let input = &mut String::new();
-                        stdin.read_line(input)?;
-                        match input.trim().parse::<usize>() {
-                            Err(_) => {},
-                            Ok(i) => {
-                                let line = content.lines().nth(i).expect("Line of code");
-                                let url = format!("https://github.com/search?q={}&type=Code", line);
-                                Command::new("open").args(&[url]).output()?;
-                            },
-                        }
-                    }
-                };
+                //
+                // NOTE:
+                // The "open" command is likely MacOS specific.
+                //
+                Command::new("open").args(results).output()?;
 
                 Ok(())
             }
