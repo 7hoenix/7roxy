@@ -1,3 +1,6 @@
+mod capability;
+
+pub use crate::capability::http::{make_request, stack_exchange, Target};
 use common::Message;
 use std::{error::Error, net::SocketAddrV4};
 use tokio::net::TcpStream;
@@ -13,7 +16,18 @@ pub async fn process(socket: TcpStream) {
         .expect("invalid format from client");
     let message: Message = serde_json::from_reader(bytes.as_ref()).expect("failed to read");
     match message {
-        Message::Dummy => println!("Got a Dummy message!"),
+        Message::FindInformationOn(search) => {
+            println!("Got a directive to find information on \"{}\"", search);
+            let res = make_request(
+                search,
+                Target::StackExchange(stack_exchange::Site::StackOverflow),
+            )
+            .await;
+            match res {
+                Ok(_) => println!("made it "),
+                Err(_) => println!("Didn't make it"),
+            }
+        }
         Message::SchedulePairing(pairing_partner) => println!(
             "Got a directive to schedule a pairing session with {}",
             pairing_partner

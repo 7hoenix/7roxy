@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Message {
-    Dummy,
     SchedulePairing(String),
+    FindInformationOn(String),
 }
 
 #[cfg(test)]
