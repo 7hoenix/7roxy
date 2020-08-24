@@ -18,6 +18,9 @@ struct Opt {
 
     #[structopt(short, long)]
     set_directive: String,
+
+    #[structopt(short, long)]
+    run_program: String,
 }
 
 #[tokio::main]
@@ -25,6 +28,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     let Opt {
         daemon_address,
         set_directive,
+        run_program,
     } = Opt::from_args();
 
     let socket = TcpStream::connect(daemon_address).await?;
@@ -38,7 +42,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         set_directive
     );
 
-    let msg = serde_json::to_string(&Message::FindInformationOn(set_directive))
+    let msg = serde_json::to_string(&Message::RunProgram(run_program, set_directive))
         .expect("Failed to serialize to JSON");
     bytes_delimited
         .send(Bytes::from(msg))
