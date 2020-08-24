@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - name: Install dependencies
+        run: sudo apt-get install libxml2-dev
 
       - uses: actions-rs/cargo@v1
         with:
-          use-cross: true
           command: test
-          args: --workspace --target armv7-unknown-linux-gnueabihf
-
+          args: --workspace

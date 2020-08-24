@@ -175,6 +175,18 @@ request to AgentJ intiatates AgentZ to try and connect to AgentJ over a TCP sock
 
 --
 
+API's are super specific.
+
+What process does the program need to do in order to resolve?
+
+It does its own analyis ()
+Pick candidates out that maps "user input phrases -> things we are searching for"
+f.g("what is the shebang in bash") -> [so result with example, github code snippet]
+f("what is the shebang in bash"): value estimate, output search terms for github (eg. code snippets), relevant code/text snippets
+g(output search terms for github, value estimate): value estimate, relevant code snippets
+
+--
+
 ## Persistent Peer to Peer Address Book Protocol
 
 - Agents ping each other regularly to verify connection (once per hour - once per day).
