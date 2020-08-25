@@ -256,3 +256,20 @@ ReportResult:
       , Perform negotiations (rounds).
       , Report result.
       ]
+
+
+--
+
+Ideas:
+
+- Build off of Language Server Protocol.
+- Git Repository: Meta Repository Protocol for 7roxy to store
+   - Could be each repository is a branch
+      - Should maintain an readonly list of projects by branches
+      - This should stay in meta
+   - Could be each repository is a git subtree
+
+
+- 7roxy should be able to run arbitrary stacks of functions.
+  - For instance: Do refactoring with Rust
+- Sequence of diffs of the code and compiler output.
