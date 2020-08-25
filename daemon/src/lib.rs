@@ -4,12 +4,13 @@ mod capability;
 pub use crate::capability::http::{make_request, stack_exchange, Target};
 use common::Message;
 use std::{error::Error, net::SocketAddrV4};
-use std::process::Command;
+use std::process::{Command, Child, Stdio};
+use std::thread;
 use tokio::net::TcpStream;
 use tokio::{net::UdpSocket, stream::StreamExt};
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use std::io::{self, Write};
+use std::io::{BufReader, self, Write, BufRead, Read};
 use std::str::from_utf8;
 
 pub async fn process(socket: TcpStream) {
@@ -21,19 +22,17 @@ pub async fn process(socket: TcpStream) {
         .expect("invalid format from client");
     let message: Message = serde_json::from_reader(bytes.as_ref()).expect("failed to read");
     match message {
-        Message::FindInformationOn(program_to_run) => {
-
-            // TODO: fix me later.
-            // println!("Got a directive to find information on \"{}\"", search);
-            // let res = make_request(
-            //     search,
-            //     Target::StackExchange(stack_exchange::Site::StackOverflow),
-            // )
-            // .await;
-            // match res {
-            //     Ok(_) => println!("made it "),
-            //     Err(_) => println!("Didn't make it"),
-            // }
+        Message::FindInformationOn(search) => {
+            println!("Got a directive to find information on \"{}\"", search);
+            let res = make_request(
+                search,
+                Target::StackExchange(stack_exchange::Site::StackOverflow),
+            )
+            .await;
+            match res {
+                Ok(_) => println!("made it "),
+                Err(_) => println!("Didn't make it"),
+            }
         }
         Message::SchedulePairing(pairing_partner) => println!(
             "Got a directive to schedule a pairing session with {}",
@@ -41,22 +40,24 @@ pub async fn process(socket: TcpStream) {
         ),
         Message::RunProgram(program_to_run, args) => {
             println!("program: #{}", program_to_run);
-            let output = Command::new(program_to_run)
-                .arg(args)
-                .output()
+            let mut child = Command::new(program_to_run)
+                .args(&["-n", "3", "/bin/cat", "/Users/jphoenx/Dropbox/projects/7roxy/hi"])
+                .stdout(Stdio::piped())
+                .spawn()
                 .expect("failed");
 
-            println!("program execution from 7roxy: {}", from_utf8(&output.stdout).unwrap());
-            io::stdout().write_all(&output.stdout).unwrap();
-            io::stderr().write_all(&output.stderr).unwrap();
-            // let res = make_request(
-            //     search,
-            //     Target::StackExchange(stack_exchange::Site::StackOverflow),
-            // )
-            // .await;
-            // match res {
-            //     Ok(_) => println!("made it "),
-            //     Err(_) => println!("Didn't make it"),
+            let mut child_stdout = child.stdout.take().expect("stuff");
+
+            thread::spawn(move || {
+                println!("program execution from 7roxy");
+                let mut buffer = [0_u8;128];
+                let mut stdout = io::stdout();
+                while let Ok(num_bytes) = child_stdout.read(&mut buffer) {
+                    stdout.write(&buffer[..num_bytes]).expect("Program is complete");
+                    stdout.flush().expect("Program is complete");
+                }
+            });
+            child.wait().expect("Child errored");
         },
     }
 }
